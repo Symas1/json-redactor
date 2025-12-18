@@ -2,13 +2,12 @@ import contextlib
 import pathlib
 import sys
 from collections.abc import Iterator
-from typing import Annotated, Any, Literal, TextIO
+from typing import Annotated, Any, TextIO
 
 import typer
 
 from .core import (
     HashRedactor,
-    IRedactor,
     KeyMatcher,
     MaskRedactor,
     StreamTraverser,
