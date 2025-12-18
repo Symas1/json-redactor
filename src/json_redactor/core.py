@@ -143,3 +143,4 @@ def run_pipeline(
 
     # json.dump pulls data through the pipeline and writes to destination
     json.dump(result, destination)
+    destination.write("\n")
