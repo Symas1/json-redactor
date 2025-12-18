@@ -42,7 +42,7 @@ def _main(
     ] = None,
     mask: Annotated[
         bool,
-        typer.Option(help="Replace each sensitive value with `***REDACTED***`"),
+        typer.Option(help="Replace each sensitive value with `***REDACTED***`."),
     ] = True,
     hash: Annotated[
         bool,
