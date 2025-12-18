@@ -2,7 +2,7 @@ import contextlib
 import pathlib
 import sys
 from collections.abc import Iterator
-from typing import Annotated, Any, TextIO
+from typing import Annotated, Any, Literal, TextIO
 
 import typer
 
@@ -45,15 +45,11 @@ def _main(
             exists=True, dir_okay=False, readable=True, help="File with sensitive keys."
         ),
     ] = None,
-    mask: Annotated[
-        bool,
-        typer.Option(help="Replace each sensitive value with `***REDACTED***`."),
-    ] = True,
     hash: Annotated[
         bool,
         typer.Option(
             help="Replace each sensitive value with a deterministic SHA-256 hash of "
-            "the original value. Overrides `--mask` parameter."
+            "the original value."
         ),
     ] = False,
 ) -> None:
@@ -66,20 +62,9 @@ def _main(
         typer.echo(
             "Error: Must specify sensitive keys via `--keys` or `--key-file`.", err=True
         )
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=2)
 
-    redactor: IRedactor
-    match (mask, hash):
-        case (_, True):
-            redactor = HashRedactor()
-        case (True, False):
-            redactor = MaskRedactor()
-        case _:
-            typer.echo(
-                "Error: Must specify either `--mask` or `--hash`.",
-                err=True,
-            )
-            raise typer.Exit(code=1)
+    redactor = HashRedactor() if hash else MaskRedactor()
 
     traverser = StreamTraverser(matcher=KeyMatcher(keys=target_keys), redactor=redactor)
 
