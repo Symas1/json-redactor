@@ -8,6 +8,8 @@ Prerequisites: `uv` and `uvx`.
 uvx --from git+https://github.com/Symas1/json-redactor@v1.0.0 json-redactor --help
 ```
 
+Review usage examples in `Makefile.examples` target.
+
 ## Contributing
 Prerequisites: `uv`, `make` and (optional) `direnv`.
 
