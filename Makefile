@@ -11,7 +11,7 @@ examples:
 	@echo "\n"
 	echo $(_JSON) | json-redactor --keys email,ssn --hash
 	@echo "\n"
-	echo $(_JSON) | json-redactor --keys email --keys-regex ^ss
+	echo $(_JSON) | json-redactor --keys-regex ^em --keys-regex ^ss
 	@echo "\n"
 	echo $(_JSON) | json-redactor --keys ssn --key-file assets/keys
 	@echo "\n"
