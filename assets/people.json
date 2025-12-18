@@ -1,0 +1,4 @@
+[
+  { "name": "Anna", "email": "anna@example.com", "ssn": "123-45-6789" },
+  { "name": "Ben",  "email": "ben@example.com",  "ssn": "987-65-4321" }
+]
