@@ -8,7 +8,7 @@ Prerequisites: `uv` and `uvx`.
 uvx --from git+https://github.com/Symas1/json-redactor@v2.0.0 json-redactor --help
 
 echo '[{ "name": "Anna", "email": "anna@example.com", "ssn": "123-45-6789" }, { "name": "Ben",  "email": "ben@example.com",  "ssn": "987-65-4321" }]' \
-  | uvx --from git+https://github.com/Symas1/json-redactor@v2.0.0 json-redactor --keys email --keys-regex ^ss
+  | uvx --from git+https://github.com/Symas1/json-redactor@v2.0.0 json-redactor --keys email --keys-regex ^ss --hash
 ```
 
 Review usage examples in `Makefile.examples` target.
