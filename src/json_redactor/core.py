@@ -49,10 +49,11 @@ class HashRedactor:
             #   Potential space for optimization.
             value = typing.cast(JsonValue, json_stream.to_standard_types(value))
 
-        # Canonicalize the input to a JSON string.
-        #   - sort_keys=True: Ensures {"a": 1, "b": 2} hashes the same as
-        #     {"b": 2, "a": 1}.
-        payload = json.dumps(value, sort_keys=True).encode("utf-8")
+        payload = json.dumps(
+            value,
+            sort_keys=True,  # deterministic key order
+            separators=(",", ":"),  # avoid whitespace variations affecting the hash
+        ).encode("utf-8")
 
         return hashlib.sha256(payload).hexdigest()
 

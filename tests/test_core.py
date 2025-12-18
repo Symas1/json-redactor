@@ -103,7 +103,7 @@ def test_hash_redactor_is_deterministic() -> None:
 
     assert (
         loaded_out_1["security"]
-        == "66cf71a6d9a3e0274c702ac00363e4283e38c4eb8e7452b81918de835514b4d9"
+        == "370180d44db52dee41c33994e0fde8e20b0ebca91ef7d0e04044dfbae81cbce2"
     )
     assert loaded_out_1 == loaded_out_2
 
@@ -113,12 +113,12 @@ def test_hash_redactor_is_deterministic() -> None:
     (
         pytest.param(
             '{"security": {"a":1, "b": [2, 3, {"c": 4, "d": [5]}]}}',
-            "ddd2ce42f56c093a356c0ee869bfd747f06ea1972b07027f103ac6063ba798f0",
+            "55cec8744aa0ff82fbc2beaab89c5e178367cfa9efa8ae9cce4381031118721c",
             id="Can encode dict",
         ),
         pytest.param(
             '{"security": [1, 2, {"a": 3}]}',
-            "fe82a57608270689fe6b5b0105a45cbd351007c0a98d8f670ebe29affbb66c5e",
+            "e23e04a9c11e464eddae03ca93be4a441d0c26380295193eecf559c6c201fb3e",
             id="Can encode list",
         ),
     ),
