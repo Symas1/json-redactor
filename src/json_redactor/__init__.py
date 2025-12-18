@@ -56,9 +56,7 @@ def _main(
     if keys:
         target_keys |= {k.strip() for k in keys.split(",") if k}
     if key_file:
-        target_keys |= {
-            k.strip() for k in key_file.read_text().split(",") if k
-        }
+        target_keys |= {k.strip() for k in key_file.read_text().split(",") if k}
     if not target_keys:
         typer.echo(
             "Error: Must specify sensitive keys via `--keys` or `--key-file`.", err=True
