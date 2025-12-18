@@ -1,5 +1,6 @@
 import contextlib
 import pathlib
+import re
 import sys
 from collections.abc import Iterator
 from typing import Annotated, Any, TextIO
@@ -7,9 +8,12 @@ from typing import Annotated, Any, TextIO
 import typer
 
 from .core import (
+    AnyMatcher,
     HashRedactor,
+    IMatcher,
     KeyMatcher,
     MaskRedactor,
+    RegexMatcher,
     StreamTraverser,
     run_pipeline,
 )
@@ -44,6 +48,10 @@ def _main(
             exists=True, dir_okay=False, readable=True, help="File with sensitive keys."
         ),
     ] = None,
+    keys_regex: Annotated[
+        list[str] | None,
+        typer.Option(help="Regex pattern(s). Can be used multiple times."),
+    ] = None,
     hash: Annotated[
         bool,
         typer.Option(
@@ -52,20 +60,35 @@ def _main(
         ),
     ] = False,
 ) -> None:
+    matchers: list[IMatcher] = []
+
     target_keys: set[str] = set()
     if keys:
         target_keys |= {k.strip() for k in keys.split(",") if k.strip()}
     if key_file:
         target_keys |= {k.strip() for k in key_file.read_text().split(",") if k.strip()}
-    if not target_keys:
+    if target_keys:
+        matchers.append(KeyMatcher(keys=target_keys))
+
+    for pattern in keys_regex or []:
+        try:
+            matchers.append(RegexMatcher(pattern=pattern))
+        except re.error as e:
+            typer.echo(f"Error: Invalid regex {pattern!r}: {e}", err=True)
+            raise typer.Exit(code=2)
+
+    if not matchers:
         typer.echo(
-            "Error: Must specify sensitive keys via `--keys` or `--key-file`.", err=True
+            "Error: Must specify sensitive keys via `--keys`, `--key-file` or `--keys-regex`.",
+            err=True,
         )
         raise typer.Exit(code=2)
 
     redactor = HashRedactor() if hash else MaskRedactor()
 
-    traverser = StreamTraverser(matcher=KeyMatcher(keys=target_keys), redactor=redactor)
+    traverser = StreamTraverser(
+        matcher=AnyMatcher(matchers=matchers), redactor=redactor
+    )
 
     try:
         with _get_input_stream(input_file) as source:

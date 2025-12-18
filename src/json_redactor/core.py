@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import typing
 from collections.abc import Iterator, Mapping, Sequence, Set
 from dataclasses import dataclass
@@ -56,6 +57,26 @@ class HashRedactor:
         ).encode("utf-8")
 
         return hashlib.sha256(payload).hexdigest()
+
+
+class RegexMatcher:
+    """Matches keys against a regex pattern."""
+
+    def __init__(self, *, pattern: str):
+        self._pattern = re.compile(pattern, re.IGNORECASE)
+
+    def is_sensitive(self, key: str) -> bool:
+        return self._pattern.search(key) is not None
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
+class AnyMatcher:
+    """Composite matcher: Returns True if ANY sub-matcher finds a match."""
+
+    matchers: Sequence[IMatcher]
+
+    def is_sensitive(self, key: str) -> bool:
+        return any(m.is_sensitive(key) for m in self.matchers)
 
 
 class KeyMatcher:

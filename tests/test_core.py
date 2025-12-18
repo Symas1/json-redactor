@@ -4,11 +4,13 @@ import json
 import pytest
 
 from json_redactor.core import (
+    AnyMatcher,
     HashRedactor,
     IMatcher,
     JsonValue,
     KeyMatcher,
     MaskRedactor,
+    RegexMatcher,
     StreamTraverser,
     run_pipeline,
 )
@@ -63,6 +65,43 @@ from json_redactor.core import (
             KeyMatcher(keys={"email"}),
             ["a", {"email": "***REDACTED***"}],
             id="List is redacted",
+        ),
+        pytest.param(
+            '{"user_id": "1", "group_id": "2", "name": "Alice"}',
+            RegexMatcher(pattern="_id"),
+            {
+                "user_id": "***REDACTED***",
+                "group_id": "***REDACTED***",
+                "name": "Alice",
+            },
+            id="Regex substring matches multiple keys",
+        ),
+        pytest.param(
+            '{"bank_code": "1", "code_bank": "2"}',
+            RegexMatcher(pattern="^bank"),
+            {"bank_code": "***REDACTED***", "code_bank": "2"},
+            id="Regex anchor matches start only",
+        ),
+        pytest.param(
+            '{"SecretValue": "123"}',
+            RegexMatcher(pattern="val"),
+            {"SecretValue": "***REDACTED***"},
+            id="Regex is case-insensitive",
+        ),
+        pytest.param(
+            '{"api_token": "abc", "password": "123", "public": "none"}',
+            AnyMatcher(
+                matchers=[
+                    RegexMatcher(pattern="token$"),  # Matches keys ending in "token"
+                    KeyMatcher(keys={"password"}),  # Exact match
+                ]
+            ),
+            {
+                "api_token": "***REDACTED***",
+                "password": "***REDACTED***",
+                "public": "none",
+            },
+            id="AnyMatcher combines Regex and KeyMatcher",
         ),
     ),
 )
