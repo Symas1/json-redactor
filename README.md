@@ -5,7 +5,7 @@ Redacts or hashes sensitive data inside an arbitrarily nested JSON document
 Prerequisites: `uv` and `uvx`.
 
 ```sh
-uvx --from git+https://github.com/Symas1/json-redactor@v1.0.0 json-redactor --help
+uvx --from git+https://github.com/Symas1/json-redactor@v2.0.0 json-redactor --help
 ```
 
 Review usage examples in `Makefile.examples` target.
