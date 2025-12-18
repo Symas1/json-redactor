@@ -1,12 +1,20 @@
 # json-redactor
 Redacts or hashes sensitive data inside an arbitrarily nested JSON document
 
+## Usage
+Prerequisites: `uv` and `uvx`.
 
-## How to use
-Prerequisites: `uv` and `make` installed.
+```sh
+uvx --from git+https://github.com/Symas1/json-redactor@v1.0.0 json-redactor --help
+```
+
+## Contributing
+Prerequisites: `uv`, `make` and (optional) `direnv`.
 
 ```sh
 make sync && source .venv/bin/activate
 
-json-redactor --help
+make lint mypy test
+
+make help
 ```
