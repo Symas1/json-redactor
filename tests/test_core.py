@@ -112,6 +112,32 @@ def test_hash_redactor_is_deterministic() -> None:
     "raw_json, expected",
     (
         pytest.param(
+            '{"security": {"a":1, "b": [2, 3, {"c": 4, "d": [5]}]}}',
+            "ddd2ce42f56c093a356c0ee869bfd747f06ea1972b07027f103ac6063ba798f0",
+            id="Can encode dict",
+        ),
+        pytest.param(
+            '{"security": [1, 2, {"a": 3}]}',
+            "fe82a57608270689fe6b5b0105a45cbd351007c0a98d8f670ebe29affbb66c5e",
+            id="Can encode list",
+        ),
+    ),
+)
+def test_hash_redactor_ok(raw_json: str, expected: str) -> None:
+    traverser = StreamTraverser(
+        matcher=KeyMatcher(keys={"security"}), redactor=HashRedactor()
+    )
+
+    out = io.StringIO()
+    run_pipeline(io.StringIO(raw_json), out, traverser)
+
+    assert json.loads(out.getvalue())["security"] == expected
+
+
+@pytest.mark.parametrize(
+    "raw_json, expected",
+    (
+        pytest.param(
             '{"name": "Alice", "email": "alice@x.com"}',
             '{"name": "Alice", "email": "***REDACTED***"}',
             id="Name first, email second",

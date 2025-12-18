@@ -17,7 +17,7 @@ class IRedactor(Protocol):
     """Protocol for transforming a sensitive value."""
 
     def __call__(
-        self, value: JsonValue | json_stream.base.TransientStreamingJSONObject
+        self, value: JsonValue | json_stream.base.TransientStreamingJSONBase
     ) -> str: ...
 
 
@@ -29,7 +29,7 @@ class IMatcher(Protocol):
 
 class MaskRedactor:
     def __call__(
-        self, value: JsonValue | json_stream.base.TransientStreamingJSONObject
+        self, value: JsonValue | json_stream.base.TransientStreamingJSONBase
     ) -> str:
         return "***REDACTED***"
 
@@ -42,9 +42,9 @@ class HashRedactor:
     """
 
     def __call__(
-        self, value: JsonValue | json_stream.base.TransientStreamingJSONObject
+        self, value: JsonValue | json_stream.base.TransientStreamingJSONBase
     ) -> str:
-        if isinstance(value, json_stream.base.TransientStreamingJSONObject):
+        if isinstance(value, json_stream.base.TransientStreamingJSONBase):
             # note: may consume a lot of memory if nested object is huge.
             #   Potential space for optimization.
             value = typing.cast(JsonValue, json_stream.to_standard_types(value))
