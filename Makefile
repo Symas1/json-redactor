@@ -17,7 +17,7 @@ examples:
 	@echo "\n"
 
 sync:
-	uv sync --all-groups --all-packages --all-extras --verbose
+	uv sync --all-groups --all-packages --all-extras
 
 lint:
 	uv run ruff check src tests
