@@ -178,12 +178,12 @@ def test_hash_redactor_ok(raw_json: str, expected: str) -> None:
     (
         pytest.param(
             '{"name": "Alice", "email": "alice@x.com"}',
-            '{"name": "Alice", "email": "***REDACTED***"}',
+            '{"name": "Alice", "email": "***REDACTED***"}\n',
             id="Name first, email second",
         ),
         pytest.param(
             '{"email": "alice@x.com", "name": "Alice"}',
-            '{"email": "***REDACTED***", "name": "Alice"}',
+            '{"email": "***REDACTED***", "name": "Alice"}\n',
             id="Email first, name second",
         ),
     ),
