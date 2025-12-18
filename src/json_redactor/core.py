@@ -3,7 +3,7 @@ import json
 import typing
 from collections.abc import Iterator, Mapping, Sequence, Set
 from dataclasses import dataclass
-from typing import Protocol, TypeAlias
+from typing import Protocol, TextIO, TypeAlias
 
 import json_stream
 import json_stream.base
@@ -106,3 +106,18 @@ class StreamTraverser:
 
             else:
                 yield key, self(value)
+
+
+def run_pipeline(
+    source: TextIO, destination: TextIO, traverser: StreamTraverser
+) -> None:
+    """Executes the streaming read-transform-write cycle."""
+
+    # json_stream.load creates a lazy iterator over the file
+    stream_data = json_stream.load(source)
+
+    # traverser wraps the stream (lazy)
+    result = traverser(stream_data)
+
+    # json.dump pulls data through the pipeline and writes to destination
+    json.dump(result, destination)

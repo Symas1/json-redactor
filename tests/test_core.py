@@ -1,7 +1,6 @@
 import io
 import json
 
-import json_stream
 import pytest
 
 from json_redactor.core import (
@@ -11,6 +10,7 @@ from json_redactor.core import (
     KeyMatcher,
     MaskRedactor,
     StreamTraverser,
+    run_pipeline,
 )
 
 
@@ -69,13 +69,10 @@ from json_redactor.core import (
 def test_ok(raw_json: str, matcher: IMatcher, expected: JsonValue) -> None:
     traverser = StreamTraverser(matcher=matcher, redactor=MaskRedactor())
 
-    in_stream = json_stream.load(io.StringIO(raw_json))
-    out_stream = traverser(in_stream)
+    out = io.StringIO()
+    run_pipeline(io.StringIO(raw_json), out, traverser)
 
-    result = io.StringIO()
-    json.dump(out_stream, result)
-
-    assert json.loads(result.getvalue()) == expected
+    assert json.loads(out.getvalue()) == expected
 
 
 def test_hash_redactor_is_deterministic() -> None:
@@ -83,38 +80,32 @@ def test_hash_redactor_is_deterministic() -> None:
         matcher=KeyMatcher(keys={"security"}), redactor=HashRedactor()
     )
 
-    result_1 = io.StringIO()
-    json.dump(
-        traverser(
-            json_stream.load(
-                io.StringIO(
-                    '{"security": {"a": 1, "b": 2, "c": [3, 4], "d": {"e": 10, "f": 11}}}'
-                )
-            )
+    out_1 = io.StringIO()
+    run_pipeline(
+        io.StringIO(
+            '{"security": {"a": 1, "b": 2, "c": [3, 4], "d": {"e": 10, "f": 11}}}'
         ),
-        result_1,
+        out_1,
+        traverser,
     )
 
-    result_2 = io.StringIO()
-    json.dump(
-        traverser(
-            json_stream.load(
-                io.StringIO(
-                    '{"security": {"d": {"f": 11, "e": 10}, "c": [3, 4], "b": 2, "a": 1}}'
-                )
-            )
+    out_2 = io.StringIO()
+    run_pipeline(
+        io.StringIO(
+            '{"security": {"d": {"f": 11, "e": 10}, "c": [3, 4], "b": 2, "a": 1}}'
         ),
-        result_2,
+        out_2,
+        traverser,
     )
 
-    actual_loaded_1 = json.loads(result_1.getvalue())
-    actual_loaded_2 = json.loads(result_2.getvalue())
+    loaded_out_1 = json.loads(out_1.getvalue())
+    loaded_out_2 = json.loads(out_2.getvalue())
 
     assert (
-        actual_loaded_1["security"]
+        loaded_out_1["security"]
         == "66cf71a6d9a3e0274c702ac00363e4283e38c4eb8e7452b81918de835514b4d9"
     )
-    assert actual_loaded_1 == actual_loaded_2
+    assert loaded_out_1 == loaded_out_2
 
 
 @pytest.mark.parametrize(
@@ -137,10 +128,7 @@ def test_preserves_original_key_order(raw_json: str, expected: str) -> None:
         matcher=KeyMatcher(keys={"email"}), redactor=MaskRedactor()
     )
 
-    in_stream = json_stream.load(io.StringIO(raw_json))
-    out_stream = traverser(in_stream)
+    out = io.StringIO()
+    run_pipeline(io.StringIO(raw_json), out, traverser)
 
-    result = io.StringIO()
-    json.dump(out_stream, result)
-
-    assert result.getvalue() == expected
+    assert out.getvalue() == expected

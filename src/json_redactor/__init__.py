@@ -1,14 +1,19 @@
 import contextlib
-import json
 import pathlib
 import sys
 from collections.abc import Iterator
 from typing import Annotated, Any, TextIO
 
-import json_stream
 import typer
 
-from .core import HashRedactor, IRedactor, KeyMatcher, MaskRedactor, StreamTraverser
+from .core import (
+    HashRedactor,
+    IRedactor,
+    KeyMatcher,
+    MaskRedactor,
+    StreamTraverser,
+    run_pipeline,
+)
 
 
 @contextlib.contextmanager
@@ -80,15 +85,7 @@ def _main(
 
     try:
         with _get_input_stream(input_file) as source:
-            # json_stream.load reads lazily from source
-            stream_data = json_stream.load(source)
-
-            # traverser wraps the stream (lazy)
-            result = traverser(stream_data)
-
-            # json.dump pulls data through the pipeline and writes to stdout
-            json.dump(result, sys.stdout)
-
+            run_pipeline(source, sys.stdout, traverser)
     except Exception as e:
         typer.echo(f"Error processing JSON: {e}", err=True)
         raise typer.Exit(code=1)
